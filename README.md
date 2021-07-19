@@ -65,7 +65,7 @@ spec:
           mountPath: /node-data
       initContainers:
       - name: query-node-info
-        image: scottcrossen/kube-node-labels:test-4
+        image: scottcrossen/kube-node-labels:1.0.0
         imagePullPolicy: IfNotPresent
         env:
         - name: NODE
