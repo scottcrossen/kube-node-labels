@@ -84,9 +84,9 @@ spec:
 EOF
 
 # Response:
-clusterrole.rbac.authorization.k8s.io/print-region unchanged
-clusterrolebinding.rbac.authorization.k8s.io/print-region unchanged
-serviceaccount/print-region unchanged
+clusterrole.rbac.authorization.k8s.io/print-region created
+clusterrolebinding.rbac.authorization.k8s.io/print-region created
+serviceaccount/print-region created
 job.batch/print-region created
 
 $ kubectl -n default logs -f jobs/print-region
