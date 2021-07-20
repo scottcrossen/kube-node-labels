@@ -11,13 +11,18 @@ if [[ -z "$OUTPUT_DIR" ]]; then
   exit 1
 fi
 
-if ! touch "$OUTPUT_DIR"/node-labels.txt; then
+if ! touch "$OUTPUT_DIR"/labels.txt; then
   echo "Failed creating output file"
   exit 1
 fi
 
-if ! cp /node-label.sh "$OUTPUT_DIR"/node-label.sh; then
-  echo "Failed moving helper script"
+if ! cp /node-label.sh "$OUTPUT_DIR"/label.sh; then
+  echo "Failed moving helper script 'label.sh'"
+  exit 1
+fi
+
+if ! cp /node-topology.sh "$OUTPUT_DIR"/topology.sh; then
+  echo "Failed moving helper script 'topology.sh'"
   exit 1
 fi
 
@@ -41,13 +46,12 @@ JQ_RESPONSE="$(echo "$API_RESPONSE" | \
       "topology.kubernetes.io/region": .metadata.labels["failure-domain.beta.kubernetes.io/region"],
       "topology.kubernetes.io/zone": .metadata.labels["failure-domain.beta.kubernetes.io/zone"]
     } * {
-      "failure-domain.beta.kubernetes.io/region": "NA",
-      "failure-domain.beta.kubernetes.io/zone": "NA",
-      "topology.kubernetes.io/region": "NA",
-      "topology.kubernetes.io/zone": "NA"
+      "failure-domain.beta.kubernetes.io/region": "",
+      "failure-domain.beta.kubernetes.io/zone": "",
+      "topology.kubernetes.io/region": "",
+      "topology.kubernetes.io/zone": ""
     } * .metadata.labels
   | to_entries
-  | map({key: .key, value: (if .value == "" then "NA" else .value end)})
   | map("\(.key)=\(.value|tostring)")
   | .[]')"
 if [[ "$?" != "0" ]]; then
@@ -56,7 +60,7 @@ if [[ "$?" != "0" ]]; then
   exit 1
 fi
 
-echo "$JQ_RESPONSE" > "$OUTPUT_DIR"/node-labels.txt
+echo "$JQ_RESPONSE" > "$OUTPUT_DIR"/labels.txt
 if [[ "$?" != "0" ]]; then
   echo "Failed writing file"
   exit 1
