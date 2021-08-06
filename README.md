@@ -4,6 +4,10 @@ Expose node labels to kubernetes pods
 
 ## Example:
 
+First, apply cluster permissions to access the node labels from a pod with our service account.
+
+Note that this needs to be a `ClusterRole` as opposed to a `Role`.
+
 ```
 $ cat << EOF | kubectl apply -f -
 
@@ -37,6 +41,19 @@ apiVersion: v1
 metadata:
   name: print-region
   namespace: default
+EOF
+
+# Response:
+clusterrole.rbac.authorization.k8s.io/print-region created
+clusterrolebinding.rbac.authorization.k8s.io/print-region created
+serviceaccount/print-region created
+```
+
+Next, add a pod that prints **Region**, **Zone**, and **Hostname** of the node which it is running on:
+
+```
+$ cat << EOF | kubectl apply -f -
+
 ---
 apiVersion: batch/v1
 kind: Job
@@ -89,11 +106,14 @@ spec:
 EOF
 
 # Response:
-clusterrole.rbac.authorization.k8s.io/print-region created
-clusterrolebinding.rbac.authorization.k8s.io/print-region created
-serviceaccount/print-region created
 job.batch/print-region created
+```
 
+Now print the logs of the previous pod to show that this works.
+
+Note that minikube doesn't have region/zone information by default. Typical cloud setups on GKE and EKS include these labels.
+
+```
 $ kubectl -n default logs -f jobs/print-region
 
 # Response:
